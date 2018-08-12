@@ -18,7 +18,7 @@ impl Ray {
         self.1
     }
 
-    pub fn advance(&self, t: f64) -> Vec3 {
-        self.0 + self.1 * t
+    pub fn advance(&self, distance: f64) -> Vec3 {
+        self.0 + self.1 * distance
     }
 }

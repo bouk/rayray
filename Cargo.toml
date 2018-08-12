@@ -4,3 +4,5 @@ version = "0.1.0"
 authors = ["Bouke van der Bijl <boukevanderbijl@gmail.com>"]
 
 [dependencies]
+rand = "0.5.5"
+rayon = "1.0.2"
