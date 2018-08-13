@@ -1,5 +1,5 @@
 use vec3::Vec3;
-use super::{Material, Hit, Hittable, Ray, EPSILON};
+use {Material, Hit, Hittable, Ray, EPSILON};
 
 #[derive(Clone, Copy)]
 pub struct Sphere {

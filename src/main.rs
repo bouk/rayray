@@ -3,16 +3,14 @@ extern crate rayon;
 
 use rayon::prelude::*;
 
+mod objects;
 mod ray;
-mod plane;
-mod sphere;
 mod vec3;
 
 use ray::Ray;
 use vec3::Vec3;
 use rand::random;
-use sphere::Sphere;
-use plane::Plane;
+use objects::*;
 
 const EPSILON: f64 = 0.001;
 
@@ -112,14 +110,22 @@ fn main() {
     let mut objects: Vec<Box<Hittable>> = vec![
         Box::new(Plane::new(Vec3(0.0, -1.0, -7.0), Vec3(0.0, 1.0, 0.0), 8.0, Material { scatter: true, color: Color::new(1.0, 0.2, 0.2) })),
     ];
+    
     for _ in 0..40 {
         let radius = 0.4 + random::<f64>() * 0.1;
         objects.push(Box::new(
                 Sphere::new(
                     Vec3(10.0 * random::<f64>() - 5.0, radius - 1.0, random::<f64>() * -10.0 - 2.0),
                     radius,
-                    Material { scatter: random::<f64>() < 0.7, color: Color::new(random::<f64>(), random::<f64>(), random::<f64>()) })));
+                    Material { scatter: random::<f64>() < 0.7, color: Color::random() })));
     }
+    /*
+    objects.push(Box::new(Triangle::new(
+                Vec3(-4.0, 1.0, -4.0),
+                Vec3(5.0, 1.0, -4.0),
+                Vec3(-6.0, 5.0, -4.0),
+                Material { scatter: true, color: Color::random() })));
+                */
     let world = World {
         objects,
     };

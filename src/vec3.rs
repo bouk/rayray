@@ -10,6 +10,8 @@ use std::ops::{
     Neg,
 };
 
+use rand::random;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
@@ -24,6 +26,10 @@ impl Vec3 {
 
     pub fn one() -> Vec3 {
         Vec3(1.0, 1.0, 1.0)
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3(random(), random(), random())
     }
 
     #[inline]
