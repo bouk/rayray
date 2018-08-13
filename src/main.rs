@@ -14,6 +14,8 @@ use rand::random;
 use sphere::Sphere;
 use plane::Plane;
 
+const EPSILON: f64 = 0.001;
+
 type Color = Vec3;
 
 pub struct Hit {
@@ -87,7 +89,7 @@ impl World {
         if let Some(hit) = self.objects.hit(ray) {
             let target = hit.material.scatter(&hit);
 
-            return hit.material.color * self._hit(&Ray::new(hit.intersection, target - hit.intersection), depth - 1);
+            return hit.material.color * self._hit(&Ray::new(hit.intersection, target - hit.intersection), depth - 1) * 0.99;
         }
 
         let unit_direction = ray.direction();
@@ -98,26 +100,28 @@ impl World {
 }
 
 fn main() {
-    let width = 400;
-    let height = 200;
-    let anti_aliasing = 20;
+    let width = 800;
+    let height = 400;
+    let anti_aliasing = 10;
 
     let lower_left_corner = Vec3::new(-2.0, -1.0, -1.0);
     let horizontal = Vec3::new(4.0, 0.0, 0.0);
     let vertical = Vec3::new(0.0, 2.0, 0.0);
     let origin = Vec3::zero();
 
-    let matte = Material { scatter: true, color: Color::new(0.8, 0.5, 0.5) };
-    let red = Material { scatter: true, color: Color::new(1.0, 0.5, 0.5) };
-    let reflect = Material { scatter: false, color: Color::new(0.8, 1.0, 0.8) };
+    let mut objects: Vec<Box<Hittable>> = vec![
+        Box::new(Plane::new(Vec3(0.0, -1.0, -7.0), Vec3(0.0, 1.0, 0.0), 8.0, Material { scatter: true, color: Color::new(1.0, 0.2, 0.2) })),
+    ];
+    for _ in 0..40 {
+        let radius = 0.4 + random::<f64>() * 0.1;
+        objects.push(Box::new(
+                Sphere::new(
+                    Vec3(10.0 * random::<f64>() - 5.0, radius - 1.0, random::<f64>() * -10.0 - 2.0),
+                    radius,
+                    Material { scatter: random::<f64>() < 0.7, color: Color::new(random::<f64>(), random::<f64>(), random::<f64>()) })));
+    }
     let world = World {
-        objects: vec![
-            Box::new(Plane::new(-1.0, matte)),
-            Box::new(Sphere::new(Vec3::new(0.0, -0.25, 2.0), 0.5, matte)),
-            Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, red)),
-            Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.8), 0.5, reflect)),
-            Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.8), 0.5, reflect)),
-        ],
+        objects,
     };
 
     println!("P3");
@@ -144,7 +148,7 @@ fn main() {
 
             sum /= anti_aliases.len() as f64;
 
-            print!("{} {} {}\t", (sum.red() * 255.0) as u8, (sum.green() * 255.0) as u8, (sum.blue() * 255.0) as u8);
+            print!("{} {} {}\t", (sum.red().sqrt() * 255.0) as u8, (sum.green().sqrt() * 255.0) as u8, (sum.blue().sqrt() * 255.0) as u8);
         }
         println!();
     }

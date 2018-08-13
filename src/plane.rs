@@ -1,36 +1,42 @@
 use vec3::Vec3;
-use super::{Material, Hit, Hittable, Ray};
+use super::{Material, Hit, Hittable, Ray, EPSILON};
 
 #[derive(Clone, Copy)]
 pub struct Plane {
-    position: f64,
+    position: Vec3,
+    normal: Vec3,
+    radius2: f64,
     material: Material,
 }
 
 impl Plane {
-    pub fn new(position: f64, material: Material) -> Plane {
-        Plane { position, material }
+    pub fn new(position: Vec3, normal: Vec3, radius: f64, material: Material) -> Plane {
+        Plane { position, normal: normal.unit(), radius2: radius * radius, material }
     }
 }
 
 impl Hittable for Plane {
     fn hit(&self, ray: &Ray) -> Option<Hit> {
-        let a = ray.origin().y();
-        let b = ray.direction().y();
-        if b == 0.0 {
+        let discriminant = ray.direction().dot(self.normal);
+
+        // Parallel
+        if discriminant == 0.0 {
             return None;
         }
 
-        let distance = (self.position - a) / b;
-        if distance < 0.0001 {
+        let distance = (self.position - ray.origin()).dot(self.normal) / discriminant;
+        if distance < EPSILON {
             return None;
         }
         let intersection = ray.advance(distance);
+        if (intersection - self.position).length_squared() > self.radius2 {
+            return None;
+        }
 
         Some(Hit {
             distance,
             intersection,
-            normal: Vec3::new(0.0, - b / b.abs(), 0.0),
+            normal: self.normal,
             material: self.material,
         })
     }

@@ -1,5 +1,5 @@
 use vec3::Vec3;
-use super::{Material, Hit, Hittable, Ray};
+use super::{Material, Hit, Hittable, Ray, EPSILON};
 
 #[derive(Clone, Copy)]
 pub struct Sphere {
@@ -24,7 +24,7 @@ impl Hittable for Sphere {
         match quadratic_formula(a, b, c) {
             None => None,
             Some(distance) => {
-                if distance < 0.0001 {
+                if distance < EPSILON {
                     return None;
                 }
 
