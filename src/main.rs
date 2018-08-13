@@ -1,18 +1,20 @@
 extern crate rand;
 extern crate rayon;
 
-mod color;
+use rayon::prelude::*;
+
 mod ray;
+mod sphere;
 mod vec3;
 
-use color::Color;
 use ray::Ray;
 use vec3::Vec3;
 use rand::random;
-use rayon::prelude::*;
+use sphere::Sphere;
+
+type Color = Vec3;
 
 pub struct Hit {
-    pub color: Color,
     pub distance: f64,
     pub intersection: Vec3,
     pub normal: Vec3,
@@ -53,7 +55,6 @@ fn random_in_unit_sphere() -> Vec3 {
 #[derive(Clone, Copy)]
 pub struct Material {
     scatter: bool,
-    reflection_rate: f64,
     color: Color,
 }
 
@@ -65,59 +66,6 @@ impl Material {
             hit.intersection - hit.normal * hit.intersection.dot(hit.normal) * 2.0
         }
     }
-}
-
-#[derive(Clone, Copy)]
-struct Sphere {
-    position: Vec3,
-    radius: f64,
-    material: Material,
-}
-
-impl Sphere {
-    fn new(position: Vec3, radius: f64, material: Material) -> Sphere {
-        Sphere { position, radius, material }
-    }
-}
-
-impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray) -> Option<Hit> {
-        let oc = ray.origin() - self.position;
-        let a = ray.direction().dot(ray.direction());
-        let b = 2.0 * ray.direction().dot(oc);
-        let c = oc.dot(oc) - self.radius * self.radius;
-
-        match quadratic_formula(a, b, c) {
-            None => None,
-            Some(distance) => {
-                if distance < 0.00001 {
-                    return None;
-                }
-
-                let intersection = ray.advance(distance);
-                let v = ((intersection - self.position).unit() + Vec3::one()) / 2.0;
-                Some(Hit { 
-                    color: Color::new(v.x(), v.y(), v.z()),
-                    distance: distance,
-                    intersection: intersection,
-                    normal: (intersection - self.position) / self.radius,
-                    material: self.material,
-                })
-            }
-        }
-    }
-}
-
-fn quadratic_formula(a: f64, b: f64, c: f64) -> Option<f64> {
-    let discriminant = b * b - 4.0 * a * c;
-    if discriminant < 0.0 {
-        return None;
-    }
-
-    // We are only interested in the lowest value
-    // The higher value would be useful if the camera would be inside the sphere but w/e
-    let d_sqrt = discriminant.sqrt();
-    Some((-b - d_sqrt) / 2.0 * a)
 }
 
 struct World {
@@ -157,9 +105,9 @@ fn main() {
     let vertical = Vec3::new(0.0, 2.0, 0.0);
     let origin = Vec3::zero();
 
-    let matte = Material { scatter: true, reflection_rate: 0.5, color: Color::new(0.8, 0.5, 0.5) };
-    let red = Material { scatter: true, reflection_rate: 0.5, color: Color::new(1.0, 0.5, 0.5) };
-    let reflect = Material { scatter: false, reflection_rate: 0.9, color: Color::new(0.8, 1.0, 0.8) };
+    let matte = Material { scatter: true, color: Color::new(0.8, 0.5, 0.5) };
+    let red = Material { scatter: true, color: Color::new(1.0, 0.5, 0.5) };
+    let reflect = Material { scatter: false, color: Color::new(0.8, 1.0, 0.8) };
     let world = World {
         objects: vec![
             Box::new(Sphere::new(Vec3::new(0.0, -0.25, 2.0), 0.5, matte)),

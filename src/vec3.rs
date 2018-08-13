@@ -59,6 +59,33 @@ impl Vec3 {
     pub fn z(&self) -> f64 {
         self.2
     }
+
+    pub fn black() -> Vec3 {
+        Vec3(0.0, 0.0, 0.0)
+    }
+
+    pub fn white() -> Vec3 {
+        Vec3(1.0, 1.0, 1.0)
+    }
+
+    pub fn linear_interpolation(a: Vec3, b: Vec3, t: f64) -> Vec3 {
+        a * (1.0 - t) + b * t
+    }
+
+    #[inline]
+    pub fn red(&self) -> f64 {
+        self.0
+    }
+
+    #[inline]
+    pub fn green(&self) -> f64 {
+        self.1
+    }
+
+    #[inline]
+    pub fn blue(&self) -> f64 {
+        self.2
+    }
 }
 
 impl Add for Vec3 {
