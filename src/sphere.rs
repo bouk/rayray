@@ -24,14 +24,14 @@ impl Hittable for Sphere {
         match quadratic_formula(a, b, c) {
             None => None,
             Some(distance) => {
-                if distance < 0.00001 {
+                if distance < 0.0001 {
                     return None;
                 }
 
                 let intersection = ray.advance(distance);
                 Some(Hit { 
-                    distance: distance,
-                    intersection: intersection,
+                    distance,
+                    intersection,
                     normal: (intersection - self.position) / self.radius,
                     material: self.material,
                 })

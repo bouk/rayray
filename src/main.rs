@@ -4,6 +4,7 @@ extern crate rayon;
 use rayon::prelude::*;
 
 mod ray;
+mod plane;
 mod sphere;
 mod vec3;
 
@@ -11,6 +12,7 @@ use ray::Ray;
 use vec3::Vec3;
 use rand::random;
 use sphere::Sphere;
+use plane::Plane;
 
 type Color = Vec3;
 
@@ -110,11 +112,11 @@ fn main() {
     let reflect = Material { scatter: false, color: Color::new(0.8, 1.0, 0.8) };
     let world = World {
         objects: vec![
+            Box::new(Plane::new(-1.0, matte)),
             Box::new(Sphere::new(Vec3::new(0.0, -0.25, 2.0), 0.5, matte)),
             Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, red)),
             Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.8), 0.5, reflect)),
             Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.8), 0.5, reflect)),
-            Box::new(Sphere::new(Vec3::new(0.0, -100.5, -2.0), 100.0, matte)),
         ],
     };
 

@@ -10,8 +10,8 @@ use std::ops::{
     Neg,
 };
 
-#[derive(Clone, Copy)]
-pub struct Vec3(f64, f64, f64);
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Vec3(pub f64, pub f64, pub f64);
 
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
@@ -43,6 +43,10 @@ impl Vec3 {
 
     pub fn dot(&self, other: Vec3) -> f64 {
         self.0 * other.0 + self.1 * other.1 + self.2 * other.2
+    }
+
+    pub fn cross(&self, other: Vec3) -> Vec3 {
+        Vec3(self.1 * other.2 - self.2 * other.1, self.2 * other.0 - self.0 * other.2, self.0 * other.1 - self.1 * other.0)
     }
 
     #[inline]
@@ -189,5 +193,38 @@ impl Neg for Vec3 {
 
     fn neg(self) -> Vec3 {
         Vec3(-self.0, -self.1, -self.2)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn dot() {
+        let a = Vec3(1.0, 1.0, 0.0);
+        let b = Vec3(-1.0, 1.0, 0.0);
+
+        let c = a.dot(b);
+
+        assert_eq!(c, 0.0);
+    }
+
+    #[test]
+    fn cross() {
+        let a = Vec3(1.0, 2.0, 3.0);
+        let b = Vec3(4.0, 5.0, 6.0);
+
+        let c = a.cross(b);
+        assert_eq!(c, Vec3(-3.0, 6.0, -3.0));
+    }
+
+    #[test]
+    fn cross_2() {
+        let a = Vec3(1.0, 0.0, 0.0);
+        let b = Vec3(0.0, 1.0, 0.0);
+
+        assert_eq!(a.cross(b), Vec3(0.0, 0.0, 1.0));
+        assert_eq!(b.cross(a), Vec3(0.0, 0.0, -1.0));
     }
 }
