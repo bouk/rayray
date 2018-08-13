@@ -79,11 +79,27 @@ impl SubAssign for Color {
     }
 }
 
+impl Mul for Color {
+    type Output = Color;
+
+    fn mul(self, other: Color) -> Color {
+        Color(self.0 * other.0, self.1 * other.1, self.2 * other.2)
+    }
+}
+
 impl Mul<f64> for Color {
     type Output = Color;
 
     fn mul(self, other: f64) -> Color {
         Color(self.0 * other, self.1 * other, self.2 * other)
+    }
+}
+
+impl MulAssign for Color {
+    fn mul_assign(&mut self, other: Color) {
+        self.0 *= other.0;
+        self.1 *= other.1;
+        self.2 *= other.2;
     }
 }
 
@@ -95,11 +111,27 @@ impl MulAssign<f64> for Color {
     }
 }
 
+impl Div for Color {
+    type Output = Color;
+
+    fn div(self, other: Color) -> Color {
+        Color(self.0 / other.0, self.1 / other.1, self.2 / other.2)
+    }
+}
+
 impl Div<f64> for Color {
     type Output = Color;
 
     fn div(self, other: f64) -> Color {
         Color(self.0 / other, self.1 / other, self.2 / other)
+    }
+}
+
+impl DivAssign for Color {
+    fn div_assign(&mut self, other: Color) {
+        self.0 /= other.0;
+        self.1 /= other.1;
+        self.2 /= other.2;
     }
 }
 

@@ -54,6 +54,7 @@ fn random_in_unit_sphere() -> Vec3 {
 pub struct Material {
     scatter: bool,
     reflection_rate: f64,
+    color: Color,
 }
 
 impl Material {
@@ -124,11 +125,19 @@ struct World {
 }
 
 impl World {
-    fn hit(&self, ray: &Ray) -> Color {
+    pub fn hit(&self, ray: &Ray) -> Color {
+        self._hit(ray, 10)
+    }
+
+    fn _hit(&self, ray: &Ray, depth: usize) -> Color {
+        if depth == 0 {
+            return Color::black();
+        }
+
         if let Some(hit) = self.objects.hit(ray) {
             let target = hit.material.scatter(&hit);
 
-            return self.hit(&Ray::new(hit.intersection, target - hit.intersection)) * hit.material.reflection_rate;
+            return hit.material.color * self._hit(&Ray::new(hit.intersection, target - hit.intersection), depth - 1);
         }
 
         let unit_direction = ray.direction();
@@ -139,8 +148,8 @@ impl World {
 }
 
 fn main() {
-    let width = 1920;
-    let height = 1080;
+    let width = 400;
+    let height = 200;
     let anti_aliasing = 20;
 
     let lower_left_corner = Vec3::new(-2.0, -1.0, -1.0);
@@ -148,12 +157,13 @@ fn main() {
     let vertical = Vec3::new(0.0, 2.0, 0.0);
     let origin = Vec3::zero();
 
-    let matte = Material { scatter: true, reflection_rate: 0.5 };
-    let reflect = Material { scatter: false, reflection_rate: 0.9 };
+    let matte = Material { scatter: true, reflection_rate: 0.5, color: Color::new(0.8, 0.5, 0.5) };
+    let red = Material { scatter: true, reflection_rate: 0.5, color: Color::new(1.0, 0.5, 0.5) };
+    let reflect = Material { scatter: false, reflection_rate: 0.9, color: Color::new(0.8, 1.0, 0.8) };
     let world = World {
         objects: vec![
             Box::new(Sphere::new(Vec3::new(0.0, -0.25, 2.0), 0.5, matte)),
-            Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, reflect)),
+            Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5, red)),
             Box::new(Sphere::new(Vec3::new(1.0, 0.0, -1.8), 0.5, reflect)),
             Box::new(Sphere::new(Vec3::new(-1.0, 0.0, -1.8), 0.5, reflect)),
             Box::new(Sphere::new(Vec3::new(0.0, -100.5, -2.0), 100.0, matte)),
